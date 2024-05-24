@@ -1,0 +1,103 @@
+from tkinter import *
+from tkinter import messagebox
+from random import choice, shuffle, randint
+import pyperclip
+
+
+# ---------------------------- PASSWORD GENERATOR ------------------------------- #
+def generate_password():
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+               'v',
+               'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+               'R',
+               'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
+
+    password_letters = [choice(letters) for char in range(randint(8, 10))]
+    password_symbols = [choice(symbols) for char in range(randint(2, 4))]
+    password_numbers = [choice(numbers) for char in range(randint(2, 4))]
+
+    password_list = password_symbols + password_numbers + password_letters
+    shuffle(password_list)
+
+    password = "".join(password_list)
+    password_entry.insert(0, password)
+    pyperclip.copy(password)
+
+
+# ---------------------------- SAVE PASSWORD ------------------------------- #
+
+def save():
+    website = website_entry.get()
+    email = email_entry.get()
+    password = password_entry.get()
+    if len(website) == 0:
+        messagebox.showerror("Empty Credentials", "Website can't be empty")
+    elif password == "":
+        messagebox.showerror("Empty Credentials", "Password can't be empty")
+    elif len(email) == 0:
+        messagebox.showerror("Empty Credentials", "email/username can't be empty")
+    elif len(password) < 8:
+        messagebox.showerror("Password too short", "Password should be more than 8 characters long")
+    else:
+        with open(file='data.txt', mode='a') as file:
+            confirmation = messagebox.askokcancel("Confirm", f"Go with the following information: website -"
+                                                             f" {website}\nemail/username - {email}\n"
+                                                             f"password - {password}")
+            if confirmation:
+                file.write(f"website: {website}| email/username: {email}| password: {password}\n")
+                website_entry.delete(0, END)
+                password_entry.delete(0, END)
+
+
+# ---------------------------- UI SETUP ------------------------------- #
+# Window Setup
+window = Tk()
+window.config(bg="black", padx=40, pady=20)
+window.title("Password Manager")
+
+
+# Canvas setup
+c_height = 200
+c_width = 200
+canvas = Canvas(window, height=c_height, width=c_width, bg="black")
+canvas.grid(row=0, column=1, padx=10, pady=10)
+
+logo = PhotoImage(file='logo.png')
+canvas.create_image((100, 100), image=logo)
+
+# Labels
+website_label = Label(window, text="website", fg="white", bg="black", anchor="w")
+website_label.grid(column=0, row=1)
+
+email_label = Label(window, text="email/username", fg="white", bg="black", anchor="w")
+email_label.grid(column=0, row=2)
+
+password_label = Label(window, text="Password", fg="white", bg="black", anchor="w")
+password_label.grid(column=0, row=3)
+
+# Entry boxes
+
+website_entry = Entry(window, fg="black", width=40)
+website_entry.grid(row=1, column=1, columnspan=2, sticky='nsew', padx=4, pady=4)
+website_entry.focus()
+
+email_entry = Entry(window, fg="black", width=40)
+email_entry.grid(row=2, column=1, columnspan=2, sticky='nsew', padx=4, pady=4)
+email_entry.insert(0, "priyadarshiofficial2021@gmail.com")
+
+password_entry = Entry(window, fg="black", width=40)
+password_entry.grid(row=3, column=1, sticky='nsew', padx=4, pady=4)
+
+# Buttons
+generate_password_button = Button(window, text="Generate Password", bg="black", fg="white", command=generate_password)
+generate_password_button.grid(row=3, column=2)
+
+add_button = Button(window, text="Add", bg="black", fg="white", width=50, command=save)
+add_button.grid(row=4, column=1, columnspan=2)
+
+
+window.mainloop()
+
+
